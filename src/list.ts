@@ -496,18 +496,18 @@ export let Foldr = <ACC, E>(fn: (b: E, a: ACC) => ACC, acc: ACC, xs: Iterable<E>
     return acc;
 }
 
-export let foldr = <ACC, E>(fn: (elem: E, acc: ACC) => ACC) => (init: ACC) => (xs: Iterable<E>) => {
+export let foldr = <ACC, E>(fn: (elem: E, acc: ACC) => ACC) => (init: ACC) => (xs: Iterable<E>) : ACC => {
     return Foldr(fn, init, xs);
 }
 
 
-export let Foldl = <ACC, E>(fn: (acc: ACC, elem: E) => ACC, init: ACC, xs: Iterable<E>) => {
+export let Foldl = <ACC, E>(fn: (acc: ACC, elem: E) => ACC, init: ACC, xs: Iterable<E>) : ACC => {
     for (const e of xs) {
         init = fn(init, e);
     }
     return init;
 }
-export let foldl = <ACC, E>(fn: (a: ACC, b: E) => ACC) => (init: ACC) => (xs: Iterable<E>) => {
+export let foldl = <ACC, E>(fn: (a: ACC, b: E) => ACC) => (init: ACC) => (xs: Iterable<E>) : ACC => {
     return Foldl(fn, init, xs);
 }
 
