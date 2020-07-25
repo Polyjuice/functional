@@ -1,4 +1,1 @@
-Some helper functions
-Some pure functions on lists 
-
-Lazy and eager evaluation
+Functional programming in Javascript. Pure functions on list. Uses lazy evaluation.
