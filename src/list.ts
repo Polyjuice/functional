@@ -189,8 +189,8 @@ export const Cons = function <E>(newElement: E, oldList: Iterable<E>): Iterable<
         }
     );
 }
-export let cons = <E>(newElement: E) => ( oldList: Iterable<E>) => {
-    return Cons( newElement, oldList );
+export let cons = <E>(newElement: E) => (oldList: Iterable<E>) => {
+    return Cons(newElement, oldList);
 }
 
 
@@ -356,36 +356,49 @@ export let insertAt = <E>(where: number) => (toInsert: Iterable<E>) => (xs: Iter
  * @param fn 
  * @param list 
  */
-export const Union = function <E>(first:Iterable<E>,second:Iterable<E>) {
+export const Union = function <E>(first: Iterable<E>, second: Iterable<E>) {
     return new IterableGenerator(
         function* () {
-            var map = new Map<any,any>();
+            var map = new Map<any, any>();
             for (const e of first) {
                 if (map.get(e) == undefined) {
                     yield e;
-                    map.set(e,e);
+                    map.set(e, e);
                 }
             }
             for (const e of second) {
                 if (map.get(e) == undefined) {
                     yield e;
-                    map.set(e,e);
+                    map.set(e, e);
                 }
             }
         }
     );
 }
-export let union = <E>(first:Iterable<E>) => (second:Iterable<E>) => {
+export let union = <E>(first: Iterable<E>) => (second: Iterable<E>) => {
     return Union(first, second);
 }
 
 //import { take } from "./functional-lazy.js";
 
-type MapFn<IN, OUT> = (element: IN, index: number) => OUT;
+//type MapFn<IN, OUT> = ;
 
 //export const etake = <E>( cnt : number, list : Iterable<E> ) : Array<E> => Array.from(take(cnt,list));
 
-export function _map<IN, OUT>(fn: MapFn<IN, OUT>, iterable: Iterable<IN>): Array<OUT> {
+export function _map<IN, OUT>(fn: (element: IN, index: number) => OUT, iterable: Iterable<IN>): Iterable<OUT> {
+    return new IterableGenerator(
+        function* () {
+            var i = 0
+            for (const e of iterable) {
+                yield fn(e, i);
+                i++
+            }
+        });
+}
+
+type MapFn<T1,T2> = (e:T1,i?:number) => T2;
+
+export function _mapEager<IN, OUT>(fn: MapFn<IN, OUT>, iterable: Iterable<IN>): Array<OUT> {
     if (Array.isArray(iterable)) {
 
         const source = iterable as Array<IN>;
@@ -443,7 +456,7 @@ export function last<E>(xs: Iterable<E> | NonEmptyIterable<E>): E | null {
     if (Array.isArray(xs)) {
         let len = xs.length;
         if (len > 1) {
-            return xs[len-1];
+            return xs[len - 1];
         }
         return null;
     }
@@ -469,7 +482,7 @@ export function secondLast<E>(xs: Iterable<E> | NonEmptyIterable<E>): E | null {
     if (Array.isArray(xs)) {
         let len = xs.length;
         if (len > 2) {
-            return xs[len-2];
+            return xs[len - 2];
         }
         return null;
     }
@@ -490,30 +503,30 @@ export function secondLast<E>(xs: Iterable<E> | NonEmptyIterable<E>): E | null {
 
 export let Foldr = <ACC, E>(fn: (b: E, a: ACC) => ACC, acc: ACC, xs: Iterable<E>): ACC => {
     let arr = [...xs];
-    for (let i = arr.length-1;i>=0;i--) {
-        acc = fn(arr[i],acc);
+    for (let i = arr.length - 1; i >= 0; i--) {
+        acc = fn(arr[i], acc);
     }
     return acc;
 }
 
-export let foldr = <ACC, E>(fn: (elem: E, acc: ACC) => ACC) => (init: ACC) => (xs: Iterable<E>) : ACC => {
+export let foldr = <ACC, E>(fn: (elem: E, acc: ACC) => ACC) => (init: ACC) => (xs: Iterable<E>): ACC => {
     return Foldr(fn, init, xs);
 }
 
 
-export let Foldl = <ACC, E>(fn: (acc: ACC, elem: E) => ACC, init: ACC, xs: Iterable<E>) : ACC => {
+export let Foldl = <ACC, E>(fn: (acc: ACC, elem: E) => ACC, init: ACC, xs: Iterable<E>): ACC => {
     for (const e of xs) {
         init = fn(init, e);
     }
     return init;
 }
-export let foldl = <ACC, E>(fn: (a: ACC, b: E) => ACC) => (init: ACC) => (xs: Iterable<E>) : ACC => {
+export let foldl = <ACC, E>(fn: (a: ACC, b: E) => ACC) => (init: ACC) => (xs: Iterable<E>): ACC => {
     return Foldl(fn, init, xs);
 }
 
 
 
-export let Fold = <E extends RET,RET>(fn: (acc: E, e: E) => RET, xs: NonEmptyIterable<E>): RET => {
+export let Fold = <E extends RET, RET>(fn: (acc: E, e: E) => RET, xs: NonEmptyIterable<E>): RET => {
     var iterator = xs[Symbol.iterator]();
     var next;
     next = iterator.next();
@@ -534,7 +547,7 @@ export let Fold = <E extends RET,RET>(fn: (acc: E, e: E) => RET, xs: NonEmptyIte
     }
 }
 
-export let fold = <E extends RET,RET>(fn: (acc: E, e: E) => RET) => (xs: NonEmptyIterable<E>): RET => {
+export let fold = <E extends RET, RET>(fn: (acc: E, e: E) => RET) => (xs: NonEmptyIterable<E>): RET => {
     return Fold(fn, xs);
 }
 
@@ -543,15 +556,15 @@ export let fold = <E extends RET,RET>(fn: (acc: E, e: E) => RET) => (xs: NonEmpt
  * @param idfn A function mapping a list element to a key string in the resulting map object
  * @param xs The list to convert
  */
-export let MakeMap = <E>( idfn: ((fn:E) => string), xs:Iterable<E>) => {
-    var map = {} as {[key:string]:any}
+export let MakeMap = <E>(idfn: ((fn: E) => string), xs: Iterable<E>) => {
+    var map = {} as { [key: string]: any }
     for (let x of xs) {
         map[idfn(x)] = x;
     }
     return map;
 }
 
-export let makeMap =  <E>( idfn: ((fn:E) => string)) => ( xs:Iterable<E>) => {
-    return MakeMap( idfn, xs );
+export let makeMap = <E>(idfn: ((fn: E) => string)) => (xs: Iterable<E>) => {
+    return MakeMap(idfn, xs);
 }
 
