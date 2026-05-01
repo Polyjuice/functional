@@ -1,0 +1,24 @@
+{
+  "name": "functional",
+  "version": "1.0.0",
+  "description": "Functional programming in Javascript. Pure functions on list. Uses lazy evaluation.",
+  "main": "lib/index.js",
+  "type": "module",
+  "files": [
+    "/lib"
+  ],
+  "scripts": {
+    "build": "tsc -b",
+    "clean": "rm -r lib || true",
+    "test": "vitest --run --pool=forks"
+  },
+  "author": "Starcounter AB",
+  "license": "UNLICENSED",
+  "devDependencies": {
+    "typescript": "5.9.3",
+    "vitest": "3.2.4"
+  },
+  "dependencies": {
+    "@types/node": "25.0.3"
+  }
+}
